@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Live Car Sales Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f3f4f6;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: white;
+    }
+
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    #popup {
+      display: none;
+      background-color: #dff0d8;
+      color: #3c763d;
+      padding: 15px;
+      border: 1px solid #d6e9c6;
+      border-radius: 5px;
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+  <h1>Live Car Sales Dashboard</h1>
+
+  <div id="popup">✅ Your order is taken!</div>
+
+  <table id="car-table">
+    <thead>
+      <tr>
+        <th>Car Name</th>
+        <th>Brand</th>
+        <th>Model</th>
+        <th>Price (₹)</th>
+        <th>Fuel</th>
+        <th>Transmission</th>
+        <th>Seller Type</th>
+        <th>KM Driven</th>
+      </tr>
+    </thead>
+    <tbody id="table-body"></tbody>
+  </table>
+
+  <script>
+    let lastCount = 0;
+
+    function showPopup() {
+      const popup = document.getElementById("popup");
+      popup.style.display = "block";
+      setTimeout(() => {
+        popup.style.display = "none";
+      }, 3000); // hide after 3 seconds
+    }
+
+    async function fetchCars() {
+      try {
+        const response = await fetch("http://127.0.0.1:5000/all_cars");
+        const cars = await response.json();
+
+        if (cars.length > lastCount) {
+          showPopup();  // show popup only on new data
+        }
+
+        lastCount = cars.length;
+
+        const tableBody = document.getElementById("table-body");
+        tableBody.innerHTML = "";
+
+        // display latest first
+        cars.slice().reverse().forEach(car => {
+          const row = document.createElement("tr");
+
+          row.innerHTML = `
+            <td>${car.car_name}</td>
+            <td>${car.brand}</td>
+            <td>${car.model}</td>
+            <td>₹${car.selling_price}</td>
+            <td>${car.fuel_type}</td>
+            <td>${car.transmission_type}</td>
+            <td>${car.seller_type}</td>
+            <td>${car.km_driven}</td>
+          `;
+
+          tableBody.appendChild(row);
+        });
+      } catch (err) {
+        console.error("Error fetching car sales:", err);
+      }
+    }
+
+    setInterval(fetchCars, 2000);  // poll every 2 seconds
+    fetchCars(); // initial load
+  </script>
+</body>
+</html>
