@@ -1,0 +1,5 @@
+flask
+kafka-python
+confluent-Kafka 
+streaming platform 
+flask-crocs
